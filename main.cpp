@@ -4,13 +4,14 @@
 using namespace std;
 
 int main() {
-//  auto x = malloc(100);
-//  auto b = new(x) MemoryManager(10);
-//  b->~MemoryManager();
-//  delete b;
   auto manager = MemoryManager(10);
-  auto address = manager.allocate(100);
+  auto address = manager.allocate(490);
+  auto address1 = manager.allocate(490);
+  auto address2 = manager.allocate(490);
   cout << address << endl;
-  cout << manager.getStartOfMemoryBlock() << endl;
+  cout << address1 << endl;
+  cout << address2 << endl;
   manager.free(address);
+  address2 = manager.allocate(490);
+  cout << address1 << endl;
 }

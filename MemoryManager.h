@@ -21,18 +21,22 @@ class MemoryManager {
   static constexpr unsigned char powerOffset = findLowestPowerOf2GreaterThan(sizeof(MemoryPartDescriptor) + 1);
   void * startOfMemoryBlock;
   unsigned char log2OfTotalMemory;
-  MemoryPartDescriptor **descriptors;
-  void getLastPairOfDescriptors(int targetPower, MemoryPartDescriptor *&current, MemoryPartDescriptor *&previous) const;
+  MemoryPartDescriptor** descriptorTable;
+  void getLastPairOfDescriptorsInTable(int targetPower,
+                                       MemoryPartDescriptor*&current,
+                                       MemoryPartDescriptor*&previous) const;
   MemoryPartDescriptor *getTargetDescriptor(size_t amountOfBytes) const;
   bool isBigEnough(size_t amountOfBytes, unsigned char log2OfManagedDataSize) const;
   MemoryPartDescriptor *getMinimizedDescriptor(size_t amountOfBytes, MemoryPartDescriptor *targetDescriptor) const;
   MemoryPartDescriptor *bisectDescriptor(MemoryPartDescriptor *targetDescriptor, size_t capacity) const;
+  MemoryPartDescriptor* getLastDescriptorInTable(MemoryPartDescriptor* current) const;
  public:
   void *getStartOfMemoryBlock() const;
   void *allocate(size_t amountOfBytes);
   void free(void *address);
   explicit MemoryManager(unsigned char log2OfTotalMemory);
   ~MemoryManager();
+  void addToDescriptorTable(MemoryPartDescriptor* newRecord);
 };
 
 #endif //MEMORYALLOCATOR_MEMORYMANAGER_H
