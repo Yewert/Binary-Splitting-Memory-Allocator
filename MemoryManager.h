@@ -27,16 +27,17 @@ class MemoryManager {
                                        MemoryPartDescriptor*&previous) const;
   MemoryPartDescriptor *getTargetDescriptor(size_t amountOfBytes) const;
   bool isBigEnough(size_t amountOfBytes, unsigned char log2OfManagedDataSize) const;
-  MemoryPartDescriptor *getMinimizedDescriptor(size_t amountOfBytes, MemoryPartDescriptor *targetDescriptor) const;
-  MemoryPartDescriptor *bisectDescriptor(MemoryPartDescriptor *targetDescriptor, size_t capacity) const;
+  MemoryPartDescriptor* getMinimizedDescriptor(size_t amountOfBytes, MemoryPartDescriptor* targetDescriptor);
+  MemoryPartDescriptor* bisectDescriptor(MemoryPartDescriptor* targetDescriptor, size_t capacity);
   MemoryPartDescriptor* getLastDescriptorInTable(MemoryPartDescriptor* current) const;
+  void addToDescriptorTable(MemoryPartDescriptor* newRecord);
+  void removeDescriptorFromTheTable(MemoryPartDescriptor* outdatedRecord);
  public:
   void *getStartOfMemoryBlock() const;
   void *allocate(size_t amountOfBytes);
-  void free(void *address);
+  void freeSpace(void* address);
   explicit MemoryManager(unsigned char log2OfTotalMemory);
   ~MemoryManager();
-  void addToDescriptorTable(MemoryPartDescriptor* newRecord);
 };
 
 #endif //MEMORYALLOCATOR_MEMORYMANAGER_H

@@ -9,32 +9,22 @@
 
 class MemoryPartDescriptor {
 
-private:
-    Selector body{
-            Selector()
-    };
-public:
-    Selector &getBody();
-
-private:
-    bool isFree{true};
-    unsigned char log2OfSize{};
+ private:
+  Selector body{
+      Selector()
+  };
+  bool isFree{true};
+  unsigned char log2OfSize{};
  public:
   void setLog2OfSize(unsigned char log2OfSize);
- public:
-    unsigned char getLog2OfSize() const;
-
-    bool IsFree() const;
-
-    void setNext(MemoryPartDescriptor *next);
-
-    void setDataAddress(void *data);
-
-    MemoryPartDescriptor() = default;
-
-    explicit MemoryPartDescriptor(unsigned char log2OfSize);
-    explicit MemoryPartDescriptor(unsigned char log2OfSize, void *data);
+  unsigned char getLog2OfSize() const;
+  bool IsFree() const;
+  void setNext(MemoryPartDescriptor* next);
+  MemoryPartDescriptor* getNext();
+  void setDataAddress(void* data);
+  void* getDataAddress();
+  MemoryPartDescriptor() = default;
+  explicit MemoryPartDescriptor(unsigned char log2OfSize);
 };
-
 
 #endif //MEMORYALLOCATOR_MEMORYPARTDESCRIPTOR_H
