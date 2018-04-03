@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <stdexcept>
 #include <iostream>
+#include <iomanip>
 
 using namespace std;
 
@@ -167,5 +168,20 @@ void* MemoryManager::getStartOfMemoryBlock() const {
 MemoryManager::~MemoryManager() {
   free(startOfMemoryBlock);
   delete[] descriptorTable;
+}
+void MemoryManager::printSummary() {
+  void* pointer = startOfMemoryBlock;
+  size_t size = (size_t) 1 << log2OfTotalMemory;
+  cout << setw(10) << "address" << setw(10) << "rel_addr" << setw(10) << "size" << setw(10) << "state" << endl;
+  void* boundary = pointer + size;
+  while (pointer < boundary) {
+    auto relative_address = (size_t) pointer - (size_t) startOfMemoryBlock;
+    auto descriptor = reinterpret_cast<MemoryPartDescriptor*>(pointer);
+    size_t descriptor_size = (size_t) 1 << descriptor->getLog2OfSize();
+    cout << setw(10) << descriptor << setw(10) << relative_address << setw(10) << descriptor_size << setw(10)
+         << (descriptor->IsFree() ? "free" : "occupied") << endl;
+    pointer += descriptor_size;
+  }
+  cout << endl;
 }
 

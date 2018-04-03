@@ -4,26 +4,20 @@
 using namespace std;
 
 int main() {
-  auto manager = MemoryManager(10);
-  auto address = manager.allocate(490);
-  auto address1 = manager.allocate(200);
-  auto address2 = manager.allocate(200);
-  auto address3 = manager.allocate(490);
-  cout << address << endl;
-  cout << address1 << endl;
-  cout << address2 << endl;
-  cout << address3 << endl;
-  cout << "-------------" << endl;
+  auto manager = MemoryManager(20);
+  auto address = manager.allocate(4900);
+  auto address1 = manager.allocate(2000);
+  auto address2 = manager.allocate(2000);
+  auto address3 = manager.allocate(4900);
+  manager.printSummary();
   manager.freeSpace(address1);
   manager.freeSpace(address2);
-  address3 = manager.allocate(490);
-  cout << address3 << endl;
+  address3 = manager.allocate(4900);
+  manager.printSummary();
   manager.freeSpace(address3);
-  cout << "-------------" << endl;
-  auto address4 = manager.allocate(100);
-  auto address5 = manager.allocate(200);
-  auto address6 = manager.allocate(100);
-  cout << address4 << endl;
-  cout << address5 << endl;
-  cout << address6 << endl;
+  auto address4 = manager.allocate(1000);
+  auto address5 = manager.allocate(2000);
+  manager.printSummary();
+  auto address6 = manager.allocate(500000);
+  manager.printSummary();
 }
