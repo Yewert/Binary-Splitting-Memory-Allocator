@@ -97,7 +97,6 @@ void MemoryManager::freeSpace(void* address) {
       reinterpret_cast<MemoryPartDescriptor*>((size_t) address - sizeof(MemoryPartDescriptor));
   correspondingDescriptor->setNext(nullptr);
   while (correspondingDescriptor->getLog2OfSize() != log2OfTotalMemory) {
-//    cout << (int)(1 << correspondingDescriptor->getLog2OfSize()) << endl;
     size_t relativeAddress = (size_t) correspondingDescriptor - (size_t) startOfMemoryBlock;
     size_t size = ((size_t) 1 << correspondingDescriptor->getLog2OfSize());
     size_t index = relativeAddress == 0 ? 0 : relativeAddress / size;
@@ -112,7 +111,6 @@ void MemoryManager::freeSpace(void* address) {
     if (brotherDescriptor->getLog2OfSize() != correspondingDescriptor->getLog2OfSize()
         || !brotherDescriptor->IsFree()) {
       addToDescriptorTable(correspondingDescriptor);
-//      cout << "---------------" << endl;
       return;
     }
     removeDescriptorFromTheTable(brotherDescriptor);
@@ -125,7 +123,6 @@ void MemoryManager::freeSpace(void* address) {
   }
   correspondingDescriptor->setNext(nullptr);
   descriptorTable[correspondingDescriptor->getLog2OfSize() - powerOffset] = correspondingDescriptor;
-//  cout << "---------------" << endl;
 }
 void MemoryManager::removeDescriptorFromTheTable(MemoryPartDescriptor* outdatedRecord) {
   auto cur = descriptorTable[outdatedRecord->getLog2OfSize() - powerOffset];
