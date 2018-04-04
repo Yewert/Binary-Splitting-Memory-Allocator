@@ -18,7 +18,7 @@ static constexpr unsigned char findLowestPowerOf2GreaterThan(size_t number) {
 
 class MemoryManager {
  private:
-  static constexpr unsigned char powerOffset = findLowestPowerOf2GreaterThan(sizeof(MemoryPartDescriptor) + 1);
+  static const unsigned char powerOffset = findLowestPowerOf2GreaterThan(sizeof(MemoryPartDescriptor) + 1);
   void* startOfMemoryBlock;
   unsigned char log2OfTotalMemory;
   MemoryPartDescriptor** descriptorTable;
@@ -33,7 +33,6 @@ class MemoryManager {
   void addToDescriptorTable(MemoryPartDescriptor* newRecord);
   void removeDescriptorFromTheTable(MemoryPartDescriptor* outdatedRecord);
  public:
-  void* getStartOfMemoryBlock() const;
   void* allocate(size_t amountOfBytes);
   void freeSpace(void* address);
   void printSummary();

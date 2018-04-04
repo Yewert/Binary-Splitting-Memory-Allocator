@@ -34,7 +34,7 @@ MemoryPartDescriptor* MemoryManager::getMinimizedDescriptor(size_t amountOfBytes
       newParent->setNext(targetDescriptor);
     }
     targetDescriptor = newDescriptor;
-    capacity = ((size_t) 1) << (targetDescriptor->getLog2OfSize() - 1);
+    capacity = (size_t) 1 << (targetDescriptor->getLog2OfSize() - 1);
   }
   return targetDescriptor;
 }
@@ -50,7 +50,7 @@ MemoryPartDescriptor* MemoryManager::getLastDescriptorInTable(MemoryPartDescript
 }
 
 MemoryPartDescriptor* MemoryManager::bisectDescriptor(MemoryPartDescriptor* targetDescriptor, size_t capacity) {
-  MemoryPartDescriptor* newDescriptor = reinterpret_cast<MemoryPartDescriptor*>((void*) targetDescriptor + capacity);
+  auto* newDescriptor = reinterpret_cast<MemoryPartDescriptor*>((size_t) targetDescriptor + capacity);
   *newDescriptor = MemoryPartDescriptor((unsigned char) (targetDescriptor->getLog2OfSize() - 1));
   targetDescriptor->setLog2OfSize((unsigned char) (targetDescriptor->getLog2OfSize() - 1));
   return newDescriptor;
@@ -69,7 +69,7 @@ MemoryPartDescriptor* MemoryManager::getTargetDescriptor(size_t amountOfBytes) c
       } else {
         previous->setNext(nullptr);
       }
-      current->setDataAddress(sizeof(MemoryPartDescriptor) + reinterpret_cast<void*>(current));
+      current->setDataAddress(reinterpret_cast<void*>(current + 1));
       targetDescriptor = current;
       break;
     }
@@ -93,23 +93,26 @@ void MemoryManager::getLastPairOfDescriptorsInTable(const int targetPower,
 }
 
 void MemoryManager::freeSpace(void* address) {
-  auto correspondingDescriptor = reinterpret_cast<MemoryPartDescriptor*>(address - sizeof(MemoryPartDescriptor));
+  auto correspondingDescriptor =
+      reinterpret_cast<MemoryPartDescriptor*>((size_t) address - sizeof(MemoryPartDescriptor));
   correspondingDescriptor->setNext(nullptr);
   while (correspondingDescriptor->getLog2OfSize() != log2OfTotalMemory) {
+//    cout << (int)(1 << correspondingDescriptor->getLog2OfSize()) << endl;
     size_t relativeAddress = (size_t) correspondingDescriptor - (size_t) startOfMemoryBlock;
     size_t size = ((size_t) 1 << correspondingDescriptor->getLog2OfSize());
-    size_t index = relativeAddress == 0 ? 0 : size / relativeAddress;
+    size_t index = relativeAddress == 0 ? 0 : relativeAddress / size;
     MemoryPartDescriptor* brotherDescriptor = nullptr;
     if (index % 2 == 0) {
       brotherDescriptor = reinterpret_cast<MemoryPartDescriptor*>(
-          reinterpret_cast<void*>(correspondingDescriptor) + size);
+          reinterpret_cast<size_t>(correspondingDescriptor) + size);
     } else {
       brotherDescriptor = reinterpret_cast<MemoryPartDescriptor*>(
-          reinterpret_cast<void*>(correspondingDescriptor) - size);
+          reinterpret_cast<size_t>(correspondingDescriptor) - size);
     }
     if (brotherDescriptor->getLog2OfSize() != correspondingDescriptor->getLog2OfSize()
         || !brotherDescriptor->IsFree()) {
       addToDescriptorTable(correspondingDescriptor);
+//      cout << "---------------" << endl;
       return;
     }
     removeDescriptorFromTheTable(brotherDescriptor);
@@ -122,6 +125,7 @@ void MemoryManager::freeSpace(void* address) {
   }
   correspondingDescriptor->setNext(nullptr);
   descriptorTable[correspondingDescriptor->getLog2OfSize() - powerOffset] = correspondingDescriptor;
+//  cout << "---------------" << endl;
 }
 void MemoryManager::removeDescriptorFromTheTable(MemoryPartDescriptor* outdatedRecord) {
   auto cur = descriptorTable[outdatedRecord->getLog2OfSize() - powerOffset];
@@ -144,7 +148,7 @@ MemoryManager::MemoryManager(unsigned char log2OfTotalMemory) {
   for (int i = 0; i < log2OfTotalMemory - powerOffset; ++i) {
     descriptorTable[i] = nullptr;
   }
-  size_t size = (size_t)1 << log2OfTotalMemory;
+  size_t size = (size_t) 1 << log2OfTotalMemory;
   startOfMemoryBlock = malloc(size);
   if (startOfMemoryBlock == nullptr)
     throw length_error("not enough space to allocate");
@@ -161,24 +165,23 @@ void MemoryManager::addToDescriptorTable(MemoryPartDescriptor* newRecord) {
   current->setNext(newRecord);
 }
 
-void* MemoryManager::getStartOfMemoryBlock() const {
-  return startOfMemoryBlock;
-}
-
 MemoryManager::~MemoryManager() {
   free(startOfMemoryBlock);
   delete[] descriptorTable;
 }
 void MemoryManager::printSummary() {
-  void* pointer = startOfMemoryBlock;
+  auto pointer = (size_t) startOfMemoryBlock;
   size_t size = (size_t) 1 << log2OfTotalMemory;
-  cout << setw(10) << "address" << setw(10) << "rel_addr" << setw(10) << "size" << setw(10) << "state" << endl;
-  void* boundary = pointer + size;
+  cout << setw(20) << "address" << setw(20) << "rel_addr" << setw(20) << "ind_in_pwr" << setw(20) << "size" << setw(20)
+       << "state" << endl;
+  size_t boundary = (size_t) pointer + size;
   while (pointer < boundary) {
     auto relative_address = (size_t) pointer - (size_t) startOfMemoryBlock;
     auto descriptor = reinterpret_cast<MemoryPartDescriptor*>(pointer);
     size_t descriptor_size = (size_t) 1 << descriptor->getLog2OfSize();
-    cout << setw(10) << descriptor << setw(10) << relative_address << setw(10) << descriptor_size << setw(10)
+    auto ind = relative_address / descriptor_size;
+    cout << setw(20) << descriptor << setw(20) << relative_address << setw(20) << ind << setw(20) << descriptor_size
+         << setw(20)
          << (descriptor->IsFree() ? "free" : "occupied") << endl;
     pointer += descriptor_size;
   }
