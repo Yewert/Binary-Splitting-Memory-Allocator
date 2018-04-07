@@ -164,7 +164,7 @@ void MemoryManager::addToDescriptorTable(MemoryPartDescriptor* newRecord) {
 
 MemoryManager::~MemoryManager() {
   free(startOfMemoryBlock);
-  delete[] descriptorTable;
+  delete descriptorTable;
 }
 void MemoryManager::printSummary() {
   auto pointer = (size_t) startOfMemoryBlock;
